@@ -1,0 +1,40 @@
+{
+  "name": "hyper",
+  "version": "1.0.0",
+  "description": "Launcher",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "author": "World of Unreal",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^28.1.4",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.worldofunreal.hyper",
+    "productName": "HyperGameLauncher",
+    "directories": {
+      "output": "build"
+    },
+    "win": {
+      "target": "NSIS",
+      "icon": "icons/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icons/icon.icns"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "icons"
+    }
+  }
+}
