@@ -23,11 +23,17 @@ function createWindow() {
 app.whenReady().then(createWindow);
 
 ipcMain.on('launch-game', (event) => {
-    updateLogic.launchGame().catch((error) => {
-        console.error('Error launching game:', error);
-        win.webContents.send("updateStatus", `Error: ${error.message}`);
-    });
+    if (typeof updateLogic.launchGame === "function") {
+        updateLogic.launchGame().catch((error) => {
+            console.error('Error launching game:', error);
+            win.webContents.send("updateStatus", `Error: ${error.message}`);
+        });
+    } else {
+        console.error('launchGame is not a function');
+        win.webContents.send("updateStatus", `Error: launchGame is not a function`);
+    }
 });
+
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
