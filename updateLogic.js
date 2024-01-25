@@ -178,12 +178,14 @@ async function extractGame(zipPath, extractPath) {
 
         if (process.platform === 'darwin') {
             const appPath = path.join(extractPath, 'Cosmicrafts_Mac.app');
-            exec(`chmod -R 755 "${appPath}"`, (err) => {
-                if (err) {
-                    console.error(`Error setting execute permissions: ${err}`);
-                    throw err;
+            
+            // Set permissions and then launch the game
+            exec(`chmod -R 755 "${appPath}" && open "${appPath}"`, (chmodErr, stdout, stderr) => {
+                if (chmodErr) {
+                    console.error(`Error setting permissions or opening app: ${chmodErr}`);
+                    throw chmodErr;
                 }
-                console.log(`Set execute permissions for macOS .app bundle: ${appPath}`);
+                console.log(`Game launched successfully: ${stdout}`);
             });
         }
 
@@ -193,10 +195,11 @@ async function extractGame(zipPath, extractPath) {
         const files = await fs.readdir(extractPath);
         console.log('Contents of the game directory:', files);
     } catch (error) {
-        console.error('Extraction failed:', error);
+        console.error('Extraction or launch failed:', error);
         throw error;
     }
 }
+
 
 
 async function writeLocalVersionInfo(versionInfo) {
