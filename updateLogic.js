@@ -228,7 +228,7 @@ function launchGame() {
             exec(`open "${appPath}"`, handleExecCallback(resolve, reject));
         } else if (process.platform === 'win32') {
             // Windows: Directly execute the binary
-            const exePath = path.join(gameDir, 'Cosmicrafts.exe');
+            const exePath = path.join(gameDir, 'Cosmicrafts_Windows', 'Cosmicrafts.exe');
             exec(`"${exePath}"`, handleExecCallback(resolve, reject));
         } else if (process.platform === 'linux') {
             // Linux: Directly execute the binary
