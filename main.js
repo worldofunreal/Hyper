@@ -1,6 +1,5 @@
-// main.js
-
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+// Add the 'Menu' import
 const path = require('path');
 const updateLogic = require('./updateLogic');
 
@@ -18,6 +17,10 @@ function createWindow() {
 
     win.loadFile(path.join(__dirname, 'index.html'));
     updateLogic.checkAndUpdateGame(win);
+
+    // Create an empty menu and set it as the application menu
+    const emptyMenu = Menu.buildFromTemplate([]);
+    Menu.setApplicationMenu(emptyMenu);
 }
 
 app.whenReady().then(createWindow);

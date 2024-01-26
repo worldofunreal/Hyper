@@ -17,6 +17,7 @@
     "electron-builder": "^24.9.1"
   },
   "build": {
+    "asar": true,
     "appId": "com.worldofunreal.hyper",
     "productName": "Cosmicrafts",
     "artifactName": "${productName}",
