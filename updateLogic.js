@@ -5,14 +5,14 @@ const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
 
-const versionUrl = 'https://tcpug-iqaaa-aaaap-qb67q-cai.icp0.io/version.json';
-const versionUrlIPv4 = 'https://ipv4.tcpug-iqaaa-aaaap-qb67q-cai.icp0.io/version.json';
+const versionUrl = 'https://cosmicrafts.com/version.json';
+const versionUrlIPv4 = 'https://cosmicrafts.com/version.json';
 
 let gameDir;
 if (process.platform === 'darwin') {
-    gameDir = '/Applications/MyGame';  // macOS
+    gameDir = '/Applications/Cosmicrafts';  // macOS
 } else {
-    gameDir = path.join(os.homedir(), 'MyGame');  // Linux and Windows
+    gameDir = path.join(os.homedir(), 'Cosmicrafts');  // Linux and Windows
 }
 
 // Ensure the game directory exists before attempting to update or launch
@@ -26,10 +26,10 @@ async function checkAndUpdateGame(window) {
 
         if (shouldUpdate(localVersionInfo, remoteVersionInfo)) {
             window.webContents.send("updateStatus", "Downloading game update...");
-            const zipPath = await downloadGame(remoteVersionInfo.url);
+            const zipPath = await downloadGame(remoteVersionInfo.url, window); // Pass window here
             window.webContents.send("updateStatus", "Verifying download...");
             // Simulate checksum verification here
-            window.webContents.send("updateStatus", "Installing game update...");
+            window.webContents.send("updateStatus", "Unpacking...");
             await extractGame(zipPath, gameDir);
             await writeLocalVersionInfo(remoteVersionInfo);
             window.webContents.send("updateStatus", "Game update installed.");
@@ -146,28 +146,36 @@ async function fetchVersionInfoIPv4() {
     return false; // Versions are equal, no update needed
   }
   
-  
-
-async function downloadGame(url) {
+  async function downloadGame(url, window) {
     console.log(`Starting download from URL: ${url}`);
     const zipPath = path.join(os.tmpdir(), 'game.zip');
     const fileStream = fs.createWriteStream(zipPath);
-    
+  
     return new Promise((resolve, reject) => {
-        https.get(url, (res) => {
-            res.pipe(fileStream);
-            fileStream.on('finish', () => {
-                fileStream.close(() => {
-                    console.log(`Downloaded game zip: ${zipPath}`);
-                    resolve(zipPath);
-                });
-            });
-        }).on('error', (error) => {
-            console.error('Download failed:', error);
-            reject(error);
+      https.get(url, (res) => {
+        const totalSize = parseInt(res.headers['content-length'], 10);
+        let downloadedSize = 0;
+  
+        res.on('data', (chunk) => {
+          downloadedSize += chunk.length;
+          const progress = (downloadedSize / totalSize) * 100;
+          window.webContents.send("updateStatus", `Download progress: ${progress.toFixed(2)}%`);
         });
+  
+        res.pipe(fileStream);
+        fileStream.on('finish', () => {
+          fileStream.close(() => {
+            console.log(`Downloaded game zip: ${zipPath}`);
+            resolve(zipPath);
+          });
+        });
+      }).on('error', (error) => {
+        console.error('Download failed:', error);
+        reject(error);
+      });
     });
-}
+  }
+  
 
 async function extractGame(zipPath, extractPath) {
     console.log(`Starting extraction of ${zipPath} to ${extractPath}`);
@@ -176,16 +184,27 @@ async function extractGame(zipPath, extractPath) {
         zip.extractAllTo(extractPath, true);
         console.log('Extraction complete.');
 
+        // Set permissions for macOS
         if (process.platform === 'darwin') {
             const appPath = path.join(extractPath, 'Cosmicrafts_Mac.app');
-            
-            // Set permissions and then launch the game
             exec(`chmod -R 755 "${appPath}" && open "${appPath}"`, (chmodErr, stdout, stderr) => {
                 if (chmodErr) {
                     console.error(`Error setting permissions or opening app: ${chmodErr}`);
                     throw chmodErr;
                 }
                 console.log(`Game launched successfully: ${stdout}`);
+            });
+        }
+
+         // Set execute permissions for Linux binary
+         if (process.platform === 'linux') {
+            const binPath = path.join(extractPath, 'Cosmicrafts', 'Cosmicrafts.x86_64');
+            exec(`chmod +x "${binPath}"`, (chmodErr, stdout, stderr) => {
+                if (chmodErr) {
+                    console.error(`Error setting execute permissions: ${chmodErr}`);
+                    throw chmodErr;
+                }
+                console.log(`Execute permissions set for ${binPath}`);
             });
         }
 
@@ -224,15 +243,15 @@ function launchGame() {
         // Handle game launch based on platform
         if (process.platform === 'darwin') {
             // macOS: Use 'open' command
-            const appPath = path.join(gameDir, 'Cosmicrafts_Mac.app');
+            const appPath = path.join(gameDir, 'Cosmicrafts.app');
             exec(`open "${appPath}"`, handleExecCallback(resolve, reject));
         } else if (process.platform === 'win32') {
             // Windows: Directly execute the binary
-            const exePath = path.join(gameDir, 'Cosmicrafts_Windows', 'Cosmicrafts.exe');
+            const exePath = path.join(gameDir, 'Cosmicrafts', 'Cosmicrafts.exe');
             exec(`"${exePath}"`, handleExecCallback(resolve, reject));
         } else if (process.platform === 'linux') {
             // Linux: Directly execute the binary
-            const binPath = path.join(gameDir, 'Cosmicrafts_Linux', 'Cosmicrafts.x86_64');
+            const binPath = path.join(gameDir, 'Cosmicrafts', 'Cosmicrafts.x86_64');
             exec(`"${binPath}"`, handleExecCallback(resolve, reject));
         } else {
             reject(new Error('Unsupported platform'));
@@ -249,7 +268,6 @@ function handleExecCallback(resolve, reject) {
         }
     };
 }
-
 
 async function readLocalVersionInfo() {
     try {
@@ -277,11 +295,11 @@ function getGameExecutablePath() {
         case 'darwin':
             // Assuming the actual executable has the same name as the .app bundle
             // Adjust the path if the executable inside the .app bundle has a different name
-            return path.join(gameDir, 'Cosmicrafts_Mac.app/Contents/MacOS/Cosmicrafts_Mac');
+            return path.join(gameDir, 'Cosmicrafts.app/Contents/MacOS/Cosmicrafts_Mac');
         case 'win32':
             return path.join(gameDir, 'Cosmicrafts.exe');
         case 'linux':
-            return path.join(gameDir, 'Cosmicrafts_Linux', 'Cosmicrafts.x86_64'); // Update path for Linux
+            return path.join(gameDir, 'Cosmicrafts', 'Cosmicrafts.x86_64'); // Update path for Linux
         default:
             throw new Error('Unsupported platform');
     }

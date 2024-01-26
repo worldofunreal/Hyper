@@ -34,7 +34,6 @@ ipcMain.on('launch-game', (event) => {
     }
 });
 
-
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
 });
