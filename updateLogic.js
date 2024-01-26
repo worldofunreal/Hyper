@@ -186,7 +186,7 @@ async function extractGame(zipPath, extractPath) {
 
         // Set permissions for macOS
         if (process.platform === 'darwin') {
-            const appPath = path.join(extractPath, 'Cosmicrafts_Mac.app');
+            const appPath = path.join(extractPath, 'Cosmicrafts.app');
             exec(`chmod -R 755 "${appPath}" && open "${appPath}"`, (chmodErr, stdout, stderr) => {
                 if (chmodErr) {
                     console.error(`Error setting permissions or opening app: ${chmodErr}`);
@@ -295,7 +295,7 @@ function getGameExecutablePath() {
         case 'darwin':
             // Assuming the actual executable has the same name as the .app bundle
             // Adjust the path if the executable inside the .app bundle has a different name
-            return path.join(gameDir, 'Cosmicrafts.app/Contents/MacOS/Cosmicrafts_Mac');
+            return path.join(gameDir, 'Cosmicrafts.app/Contents/MacOS/Cosmicrafts');
         case 'win32':
             return path.join(gameDir, 'Cosmicrafts.exe');
         case 'linux':
