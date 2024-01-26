@@ -18,7 +18,8 @@
   },
   "build": {
     "appId": "com.worldofunreal.hyper",
-    "productName": "HyperGameLauncher",
+    "productName": "Cosmicrafts",
+    "artifactName": "${productName}",
     "directories": {
       "output": "build"
     },

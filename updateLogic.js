@@ -4,36 +4,38 @@ const AdmZip = require('adm-zip');
 const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
+const { app, BrowserWindow } = require('electron');
+
 
 const versionUrl = 'https://cosmicrafts.com/version.json';
 const versionUrlIPv4 = 'https://cosmicrafts.com/version.json';
 
-let gameDir;
-if (process.platform === 'darwin') {
-    gameDir = '/Applications/Cosmicrafts';  // macOS
-} else {
-    gameDir = path.join(os.homedir(), 'Cosmicrafts');  // Linux and Windows
-}
 
-// Ensure the game directory exists before attempting to update or launch
+let gameDir = path.join(app.getPath('userData'), 'Cosmicrafts');
 fs.ensureDirSync(gameDir);
 
 async function checkAndUpdateGame(window) {
     try {
         await fs.ensureDir(gameDir);
+        let localVersionInfo = await readLocalVersionInfo();
+        console.log('Local Version Info:', localVersionInfo);
         const remoteVersionInfo = await fetchVersionInfo();
-        const localVersionInfo = await readLocalVersionInfo();
+        console.log('Remote Version Info:', remoteVersionInfo);
 
-        if (shouldUpdate(localVersionInfo, remoteVersionInfo)) {
+        if (!localVersionInfo || shouldUpdate(localVersionInfo, remoteVersionInfo)) {
+            console.log('Updating game...');
             window.webContents.send("updateStatus", "Downloading game update...");
-            const zipPath = await downloadGame(remoteVersionInfo.url, window); // Pass window here
+            const zipPath = await downloadGame(remoteVersionInfo.url, window);
             window.webContents.send("updateStatus", "Verifying download...");
             // Simulate checksum verification here
             window.webContents.send("updateStatus", "Unpacking...");
             await extractGame(zipPath, gameDir);
             await writeLocalVersionInfo(remoteVersionInfo);
-            window.webContents.send("updateStatus", "Game update installed.");
+            window.webContents.send("updateStatus", "Game updated.");
+            console.log('Game updated.');
+            localVersionInfo = remoteVersionInfo; // Update local version info after the update
         } else {
+            console.log('Game is up to date.');
             window.webContents.send("updateStatus", "Game is up to date.");
         }
     } catch (error) {
@@ -41,6 +43,7 @@ async function checkAndUpdateGame(window) {
         window.webContents.send("updateStatus", `Update failed: ${error.message}`);
     }
 }
+
 
 async function fetchVersionInfo() {
     try {
@@ -129,22 +132,34 @@ async function fetchVersionInfoIPv4() {
     }
 }
 
+function shouldUpdate(localVersion, remoteVersion) {
+    // Split version numbers into parts and convert them to numbers
+    const localParts = localVersion.version.split('.').map(Number);
+    const remoteParts = remoteVersion.version.split('.').map(Number);
 
-  function shouldUpdate(localVersion, remoteVersion) {
-    // Assuming version numbers are in the format 'X.Y.Z'
-    const localVersionParts = localVersion.version.split('.').map(Number);
-    const remoteVersionParts = remoteVersion.version.split('.').map(Number);
-  
-    for (let i = 0; i < 3; i++) {
-      if (remoteVersionParts[i] > localVersionParts[i]) {
-        return true; // Remote version is greater, so update is needed
-      } else if (remoteVersionParts[i] < localVersionParts[i]) {
-        return false; // Local version is greater, no update needed
-      }
+    console.log('Local Version Parts:', localParts);
+    console.log('Remote Version Parts:', remoteParts);
+
+    // Compare each part of the version numbers
+    for (let i = 0; i < Math.max(localParts.length, remoteParts.length); i++) {
+        // Handle cases where one version has more parts than the other
+        const localPart = localParts[i] || 0;
+        const remotePart = remoteParts[i] || 0;
+
+        if (remotePart > localPart) {
+            console.log('Update needed: Remote version is greater.');
+            return true; // Remote version is greater, so update is needed
+        } else if (remotePart < localPart) {
+            console.log('No update needed: Local version is greater.');
+            return false; // Local version is greater, no update needed
+        }
+        // If the parts are equal, continue to the next part
     }
-  
+
+    console.log('No update needed: Versions are equal.');
     return false; // Versions are equal, no update needed
-  }
+}
+
   
   async function downloadGame(url, window) {
     console.log(`Starting download from URL: ${url}`);
@@ -293,17 +308,14 @@ function getPlatformKey() {
 function getGameExecutablePath() {
     switch (process.platform) {
         case 'darwin':
-            // Assuming the actual executable has the same name as the .app bundle
-            // Adjust the path if the executable inside the .app bundle has a different name
             return path.join(gameDir, 'Cosmicrafts.app/Contents/MacOS/Cosmicrafts');
         case 'win32':
             return path.join(gameDir, 'Cosmicrafts.exe');
         case 'linux':
-            return path.join(gameDir, 'Cosmicrafts', 'Cosmicrafts.x86_64'); // Update path for Linux
+            return path.join(gameDir, 'Cosmicrafts', 'Cosmicrafts.x86_64');
         default:
             throw new Error('Unsupported platform');
     }
 }
-
 
 module.exports = { checkAndUpdateGame, launchGame };
