@@ -1,3 +1,4 @@
+// updateLogic.js
 const { exec } = require('child_process');
 const https = require('https');
 const AdmZip = require('adm-zip');
@@ -172,9 +173,10 @@ function shouldUpdate(localVersion, remoteVersion) {
         let downloadedSize = 0;
   
         res.on('data', (chunk) => {
-          downloadedSize += chunk.length;
-          const progress = (downloadedSize / totalSize) * 100;
-          window.webContents.send("updateStatus", `Download progress: ${progress.toFixed(2)}%`);
+            downloadedSize += chunk.length;
+            const progress = (downloadedSize / totalSize) * 100;
+            window.webContents.send("updateStatus", { type: 'progress', 
+            value: progress.toFixed(2), message: `Update progress: ${progress.toFixed(2)}%` });
         });
   
         res.pipe(fileStream);

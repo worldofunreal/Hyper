@@ -1,5 +1,5 @@
+// main.js
 const { app, BrowserWindow, ipcMain, Menu } = require('electron');
-// Add the 'Menu' import
 const path = require('path');
 const updateLogic = require('./updateLogic');
 

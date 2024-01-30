@@ -47,3 +47,20 @@ body {
     height: 25vh; /* Set the height to 25% of the viewport height */
   }
   
+  #progress-bar-container {
+    width: 70%;
+    background: linear-gradient(to right, #424242 0%, #1a1a1a 100%);
+    border-radius: 48px;
+    margin: 24px auto;
+    height: 12px; /* Increased height for better visibility */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    overflow: hidden; /* Ensure the inner bar respects border radius */
+}
+
+#progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, #26ff00 0%, #1b9f04 100%);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 2.5s ease-out;
+}

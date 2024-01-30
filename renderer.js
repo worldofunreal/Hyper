@@ -2,10 +2,17 @@
 
 const { ipcRenderer } = require('electron');
 
-ipcRenderer.on('updateStatus', (event, status) => {
-    document.getElementById('status').innerText = status;
-});
+ipcRenderer.on('updateStatus', (event, message) => {
+    const progressBar = document.getElementById('progress-bar');
+    const statusText = document.getElementById('status');
 
-document.getElementById('start-game').addEventListener('click', () => {
-    ipcRenderer.send('launch-game');
+    if (typeof message === 'string') {
+        statusText.innerText = message;
+    } else if (typeof message === 'object') {
+        if (message.type === 'progress') {
+            progressBar.style.width = `${message.value}%`;
+            statusText.innerText = message.message;
+        }
+    }
+    
 });
