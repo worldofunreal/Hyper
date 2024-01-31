@@ -18,9 +18,9 @@
   },
   "build": {
     "asar": true,
-    "appId": "com.worldofunreal.hyper",
+    "appId": "com.worldofunreal.cosmicrafts",
     "productName": "Cosmicrafts",
-    "artifactName": "${productName}",
+    "artifactName": "${productName}-${version}.${ext}",
     "directories": {
       "output": "build"
     },
