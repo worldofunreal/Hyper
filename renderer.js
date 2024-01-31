@@ -25,3 +25,7 @@ ipcRenderer.on('updateStatus', (event, message) => {
         statusText.innerText = message;
     }
 });
+
+document.getElementById('start-game').addEventListener('click', () => {
+    ipcRenderer.send('launch-game');
+});
