@@ -26,24 +26,27 @@ async function checkAndUpdateGame(window) {
         if (!localVersionInfo || shouldUpdate(localVersionInfo, remoteVersionInfo)) {
             console.log('Updating game...');
             window.webContents.send("updateStatus", "Downloading game update...");
+            window.webContents.send("updateStatus", { type: 'update-start' });
             const zipPath = await downloadGame(remoteVersionInfo.url, window);
             window.webContents.send("updateStatus", "Verifying download...");
             // Simulate checksum verification here
             window.webContents.send("updateStatus", "Unpacking...");
             await extractGame(zipPath, gameDir);
             await writeLocalVersionInfo(remoteVersionInfo);
-            window.webContents.send("updateStatus", "Game updated.");
-            console.log('Game updated.');
+            window.webContents.send("updateStatus", `Game updated to version ${remoteVersionInfo.version}.`);
+            console.log(`Game updated to version ${remoteVersionInfo.version}.`);
+            window.webContents.send("updateStatus", { type: 'update-end' });
             localVersionInfo = remoteVersionInfo; // Update local version info after the update
         } else {
-            console.log('Game is up to date.');
-            window.webContents.send("updateStatus", "Game is up to date.");
+            console.log(`Game is up to date (v${localVersionInfo.version})`);
+            window.webContents.send("updateStatus", `Game is up to date (v${localVersionInfo.version})`);
         }
     } catch (error) {
         console.error('Update process failed:', error);
         window.webContents.send("updateStatus", `Update failed: ${error.message}`);
     }
 }
+
 
 
 async function fetchVersionInfo() {
@@ -176,7 +179,8 @@ function shouldUpdate(localVersion, remoteVersion) {
             downloadedSize += chunk.length;
             const progress = (downloadedSize / totalSize) * 100;
             window.webContents.send("updateStatus", { type: 'progress', 
-            value: progress.toFixed(2), message: `Update progress: ${progress.toFixed(2)}%` });
+            value: progress.toFixed(2), message: `Download progress: ${progress.toFixed(2)}%` });
+            
         });
   
         res.pipe(fileStream);
@@ -236,18 +240,18 @@ async function extractGame(zipPath, extractPath) {
     }
 }
 
-
-
-async function writeLocalVersionInfo(versionInfo) {
+async function writeLocalVersionInfo(versionInfo, versionName) {
     try {
         const versionFilePath = path.join(gameDir, 'version.json');
-        await fs.writeJson(versionFilePath, versionInfo);
-        console.log('Local version info updated:', versionInfo);
+        const dataToWrite = { ...versionInfo, name: versionName }; // Include the version name
+        await fs.writeJson(versionFilePath, dataToWrite);
+        console.log('Local version info updated:', dataToWrite);
     } catch (error) {
         console.error('Error writing local version info:', error);
         throw error;
     }
 }
+
 
 function launchGame() {
     return new Promise((resolve, reject) => {

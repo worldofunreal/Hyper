@@ -17,44 +17,67 @@ body {
   }
   
   h1 {
-    font-size: 36px;
-    color: #ffffff;
-    margin-top: 20px;
+    font-size: 24px;
+    color: #eaf4fc;
+    margin-top: 24px;
   }
   
   button {
-    font-size: 20px;
+    width: 240px;
+    height: 48px; 
+    font-size: 21px;
+    font-weight: 700;
     background-color: #007bff;
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     padding: 10px 20px;
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
   
   button:hover {
-    background-color: #0056b3;
+    background-color: #2d92ff;
   }
+
+  .button-updating {
+    background-color: #004186; /* Example color: orange */
+    color: rgb(163, 163, 163); /* Example text color */
+    /* Add other styling as needed */
+}
+
   
   p {
-    font-size: 18px;
-    color: #ffffff;
-    margin-top: 20px;
+    font-size: 12px;
+    color: #adadad;
+    margin-top: 24px;
   }
+
+  #current-version {
+    font-size: 12px;
+    color: #b1b1b1;
+    margin-top: 10px; 
+    text-align: center;
+}
   
-  .logo {
-    height: 25vh; /* Set the height to 25% of the viewport height */
-  }
-  
+
+.logo {
+  height: 32vh;
+  margin-bottom: 2px; 
+}
+
+.icp {
+  height: 4vh;
+}
   #progress-bar-container {
-    width: 70%;
-    background: linear-gradient(to right, #424242 0%, #1a1a1a 100%);
+    display: none;
+    width: 50%;
+    background: linear-gradient(to bottom, #424242 0%, #1a1a1a 100%);
     border-radius: 48px;
-    margin: 24px auto;
-    height: 12px; /* Increased height for better visibility */
+    margin-top: 24px;
+    height: 18px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
-    overflow: hidden; /* Ensure the inner bar respects border radius */
+    overflow: hidden; 
 }
 
 #progress-bar {
