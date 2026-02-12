@@ -1,28 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Cosmicrafts</title>
+  <title>Cosmicrafts Launcher</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <div class="content">
-    <div class="image-container">
-      <img src="logo.png" alt="Logo" class="logo">
-      
-    </div>
-    <div><img src="icp.png" alt="Logo" class="icp"></div>
-    <h1>Beta Launcher</h1>
-    <button id="start-game">Play</button>
+  <div class="app-container">
+    <!-- Background Elements -->
+    <div class="vignette"></div>
+    <div class="scanlines"></div>
+
+    <main class="launcher-card">
+      <header class="launcher-header">
+        <img src="logo.png" alt="Cosmicrafts Logo" class="main-logo">
+        <img src="icp.png" alt="Internet Computer" class="platform-logo">
+      </header>
+
+      <div class="launcher-content">
+        <h1 class="game-title">COSMICRAFTS</h1>
+        <p class="game-version">BETA LAUNCHER v1.0.0</p>
+        
+        <div class="action-area">
+          <button id="start-game" class="play-button">
+            <span class="button-glow"></span>
+            <span class="button-text">PLAY</span>
+          </button>
+        </div>
+
+        <div id="progress-bar-container" class="progress-container">
+          <div class="progress-track">
+            <div id="progress-bar" class="progress-fill"></div>
+          </div>
+          <p id="progress-text" class="progress-status">Initializing...</p>
+        </div>
+      </div>
+
+      <footer class="launcher-footer">
+        <p id="status" class="system-status">System Ready</p>
+      </footer>
+    </main>
   </div>
-  
-  <div id="progress-bar-container">
-    <div id="progress-bar">
-        <span id="progress-text"></span>
-    </div>
-  </div>
-  <p id="status">Status: Idle</p>
-<script src="renderer.js"></script>
+
+  <script src="renderer.js"></script>
 </body>
 </html>

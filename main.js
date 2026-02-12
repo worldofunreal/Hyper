@@ -7,20 +7,26 @@ let win;
 
 function createWindow() {
     win = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1000,
+        height: 700,
+        resizable: false,
+        backgroundColor: '#05070a',
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false
+            nodeIntegration: false,
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js')
         }
     });
 
     win.loadFile(path.join(__dirname, 'index.html'));
-    updateLogic.checkAndUpdateGame(win);
 
-    // Create an empty menu and set it as the application menu
-    const emptyMenu = Menu.buildFromTemplate([]);
-    Menu.setApplicationMenu(emptyMenu);
+    // Check for updates once the window is ready
+    win.webContents.once('did-finish-load', () => {
+        updateLogic.checkAndUpdateGame(win);
+    });
+
+    // Remove application menu for a cleaner "app" feel
+    Menu.setApplicationMenu(null);
 }
 
 app.whenReady().then(createWindow);

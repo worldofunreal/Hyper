@@ -1,31 +1,35 @@
 // renderer.js
 
-const { ipcRenderer } = require('electron');
 const startGameButton = document.getElementById('start-game');
 const statusText = document.getElementById('status');
-const progressBarContainer = document.getElementById('progress-bar-container'); // Get the container of the progress bar
+const progressBarContainer = document.getElementById('progress-bar-container');
 const progressBar = document.getElementById('progress-bar');
+const progressTextLabel = document.getElementById('progress-text');
 
-ipcRenderer.on('updateStatus', (event, message) => {
+// Use the secure window.electron API exposed via preload.js
+window.electron.on('updateStatus', (message) => {
     if (message.type === 'progress') {
-        progressBar.style.width = `${message.value}%`;
-        statusText.innerText = message.message;
-        progressBarContainer.style.display = 'block'; // Show the progress bar when updating
+        const percent = parseFloat(message.value);
+        progressBar.style.width = `${percent}%`;
+        progressTextLabel.innerText = message.message;
+        progressBarContainer.style.display = 'block';
     } else if (message.type === 'update-start') {
         startGameButton.disabled = true;
-        startGameButton.innerText = 'Updating...';
+        startGameButton.innerText = 'UPDATING...';
         startGameButton.classList.add('button-updating');
-        progressBarContainer.style.display = 'block'; // Show the progress bar when the update starts
+        progressBarContainer.style.display = 'block';
+        statusText.innerText = 'Downloading Update...';
     } else if (message.type === 'update-end') {
         startGameButton.disabled = false;
-        startGameButton.innerText = 'Play';
+        startGameButton.innerText = 'PLAY';
         startGameButton.classList.remove('button-updating');
-        progressBarContainer.style.display = 'none'; // Hide the progress bar when the update ends
+        progressBarContainer.style.display = 'none';
+        statusText.innerText = 'Update Complete';
     } else if (typeof message === 'string') {
         statusText.innerText = message;
     }
 });
 
-document.getElementById('start-game').addEventListener('click', () => {
-    ipcRenderer.send('launch-game');
+startGameButton.addEventListener('click', () => {
+    window.electron.send('launch-game');
 });

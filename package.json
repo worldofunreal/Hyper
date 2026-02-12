@@ -13,8 +13,8 @@
   "author": "World of Unreal",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^28.1.4",
-    "electron-builder": "^24.9.1"
+    "electron": "^40.4.0",
+    "electron-builder": "^26.7.0"
   },
   "build": {
     "asar": true,
@@ -42,7 +42,7 @@
     }
   },
   "dependencies": {
-    "adm-zip": "^0.5.10",
-    "fs-extra": "^11.2.0"
+    "adm-zip": "^0.5.16",
+    "fs-extra": "^11.3.3"
   }
 }
