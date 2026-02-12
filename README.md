@@ -1,6 +1,6 @@
 # Hyper Launcher
 
-![Hyper Banner](../public/assets/hyper.webp)
+![Hyper Banner](./docs/assets/hero.webp)
 
 **Hyper** is the official game launcher and auto-updater for the Cosmicrafts ecosystem. Built with Electron, it provides a seamless, secure, and cinematic entry point into the World of Unreal's flagship digital experiences.
 

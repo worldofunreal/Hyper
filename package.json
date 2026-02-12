@@ -11,7 +11,7 @@
     "dist:linux": "electron-builder --linux --x64"
   },
   "author": "World of Unreal",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^40.4.0",
     "electron-builder": "^26.7.0"
