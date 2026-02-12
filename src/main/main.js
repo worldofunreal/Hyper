@@ -14,11 +14,11 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, '../preload/preload.js')
         }
     });
 
-    win.loadFile(path.join(__dirname, 'index.html'));
+    win.loadFile(path.join(__dirname, '../renderer/index.html'));
 
     // Check for updates once the window is ready
     win.webContents.once('did-finish-load', () => {
