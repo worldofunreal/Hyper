@@ -51,7 +51,7 @@ export default function AuthModal({ onClose, dismissable = true }: { onClose: ()
 
   async function sendOtp() {
     setErr(null); setBusy(true)
-    try { await wou.requestOtp(email); setStep('otp') } catch (e: any) { setErr(e.message) } finally { setBusy(false) }
+    try { await wou.requestOtp(email, false); setStep('otp') } catch (e: any) { setErr(e.message) } finally { setBusy(false) }
   }
   async function verify() {
     setErr(null); setBusy(true)
