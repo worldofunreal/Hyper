@@ -1,0 +1,33 @@
+Third-Party Notices for Hyper
+==============================
+
+Hyper is an original work by World of Unreal. It is not affiliated with,
+endorsed by, or sponsored by Blizzard Entertainment, Discord Inc., Google LLC,
+X Corp., Meta Platforms Inc., Phantom, Consensys/MetaMask, or DFINITY.
+
+All third-party trademarks, logos, and service marks — including Discord,
+Google, X, Meta/Facebook, Phantom, MetaMask, and Internet Identity — belong
+to their respective owners. Provider names appear only to identify
+user-selected sign-in options. No affiliation or endorsement is implied.
+
+Runtime & libraries
+-------------------
+Electron (MIT) — https://www.electronjs.org
+React (MIT) — https://react.dev
+Vite / electron-vite (MIT) — https://vitejs.dev
+Tailwind CSS (MIT) — https://tailwindcss.com
+
+Fonts (SIL Open Font License 1.1)
+---------------------------------
+Barlow Condensed — https://fonts.google.com/specimen/Barlow+Condensed
+Inter — https://fonts.google.com/specimen/Inter
+JetBrains Mono — https://fonts.google.com/specimen/JetBrains+Mono
+
+Identity backend
+----------------
+World of Unreal Identity (wou-id), MIT OR Apache-2.0.
+Source and notices: https://github.com/worldofunreal/wou-id
+
+Rust dependencies
+-----------------
+See package-lock.json (npm) for the full dependency tree.

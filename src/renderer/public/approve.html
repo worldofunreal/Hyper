@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="referrer" content="no-referrer" />
+<title>Approve sign-in — Hyper</title>
+<style>
+body{background:#0B0E13;color:#D6E0EC;font:14px/1.6 system-ui,sans-serif;margin:0}
+main{max-width:400px;margin:0 auto;padding:40px 20px}
+.card{background:linear-gradient(180deg,#1B2534,#151D27);border:1px solid #2A3546;padding:24px}
+h1{color:#fff;font-size:24px;margin:0 0 4px}
+.mono{font-family:monospace;font-size:12px;color:#9EB3C8}
+input{width:100%;box-sizing:border-box;background:#0E141D;border:1px solid #2A3546;color:#fff;padding:10px 12px;font-size:14px;margin-top:8px}
+button{width:100%;padding:11px;font-size:14px;font-weight:700;border:1px solid #6B4A00;background:linear-gradient(180deg,#FFD34D,#F8B700 45%,#C78D00);color:#1A1200;margin-top:10px;cursor:pointer}
+button.ghost{background:#1A2331;border-color:#2A3546;color:#D6E0EC}
+button:disabled{opacity:.5;cursor:not-allowed}
+.err{background:rgba(194,47,47,.15);border:1px solid rgba(194,47,47,.5);color:#FF9B9B;padding:10px;font-size:12px;margin-top:10px}
+.ok{background:rgba(0,174,51,.12);border:1px solid rgba(0,174,51,.4);color:#4ADE80;padding:10px;font-size:12px;margin-top:10px}
+.hidden{display:none}
+</style>
+</head>
+<body><main>
+<div class="card">
+<h1>Approve sign-in</h1>
+<p class="mono" id="sub">Checking code…</p>
+<div id="err" class="err hidden"></div>
+<div id="login" class="hidden">
+<p>Sign in on this device first, then approve.</p>
+<input id="email" type="email" placeholder="name@example.com" />
+<button id="send">Send code</button>
+<input id="code" type="text" inputmode="numeric" placeholder="6-digit code" maxlength="6" class="hidden" />
+<button id="verify" class="hidden">Verify</button>
+</div>
+<div id="approveBox" class="hidden">
+<p id="who" class="mono"></p>
+<button id="approve">Approve this sign-in</button>
+<button id="deny" class="ghost">Deny</button>
+</div>
+<div id="done" class="ok hidden">Done — return to Hyper on your other device.</div>
+</div>
+<script>
+const ID_URL = 'https://id.worldofunreal.com';
+// Secret travels in the fragment: never sent to any server in a URL.
+const frag = new URLSearchParams((location.hash || '').replace(/^#/, ''));
+const id = (frag.get('id') || '').slice(0, 64);
+const secret = (frag.get('secret') || '').slice(0, 128);
+const $ = (s) => document.querySelector(s);
+const sub = $('#sub'), errBox = $('#err');
+function err(m) { errBox.textContent = m; errBox.classList.remove('hidden'); }
+async function body(r) { try { return await r.json(); } catch { return {}; } }
+function getTok() { return localStorage.getItem('wou_session_token'); }
+async function me(token) {
+  if (!token) return null;
+  const r = await fetch(ID_URL + '/api/v1/auth/me', { headers: { Authorization: 'Bearer ' + token } });
+  return r.ok ? r.json() : null;
+}
+async function boot() {
+  if (!id || !secret) { sub.textContent = 'Invalid code.'; return; }
+  const acc = await me(getTok());
+  if (acc) { showApprove(acc); }
+  else { sub.textContent = 'Sign in to approve.'; $('#login').classList.remove('hidden'); }
+}
+function showApprove(acc) {
+  sub.textContent = 'A device wants to sign in.';
+  $('#login').classList.add('hidden');
+  $('#who').textContent = 'Approving as @' + acc.username;
+  $('#approveBox').classList.remove('hidden');
+}
+$('#send').onclick = async () => {
+  errBox.classList.add('hidden');
+  const email = $('#email').value.trim();
+  const r = await fetch(ID_URL + '/api/v1/auth/otp/request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, context: 'world_of_unreal' }) });
+  if (!r.ok) { err((await body(r)).error || 'Send failed'); return; }
+  $('#code').classList.remove('hidden'); $('#verify').classList.remove('hidden');
+  sub.textContent = 'Code sent to ' + email;
+};
+$('#verify').onclick = async () => {
+  errBox.classList.add('hidden');
+  const r = await fetch(ID_URL + '/api/v1/auth/otp/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: $('#email').value.trim(), code: $('#code').value.trim(), context: 'world_of_unreal' }) });
+  const d = await body(r);
+  if (!r.ok) { err(d.error || 'Verify failed'); return; }
+  localStorage.setItem('wou_session_token', d.session_token);
+  localStorage.setItem('wou_user_data', JSON.stringify(d.account));
+  showApprove(d.account);
+};
+$('#approve').onclick = async () => {
+  const t = getTok();
+  if (!t) { err('Session lost. Sign in again.'); return; }
+  const r = await fetch(ID_URL + '/api/v1/auth/qr/' + encodeURIComponent(id) + '/approve', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + t }, body: JSON.stringify({ secret }) });
+  if (!r.ok) { err((await body(r)).error || 'Approve failed'); return; }
+  $('#approveBox').classList.add('hidden'); $('#done').classList.remove('hidden'); sub.textContent = 'Approved.';
+};
+$('#deny').onclick = async () => {
+  try { await fetch(ID_URL + '/api/v1/auth/qr/' + encodeURIComponent(id) + '/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ secret }) }); } catch {}
+  $('#approveBox').classList.add('hidden'); sub.textContent = 'Denied. Close this page.';
+};
+boot();
+</script>
+</main></body>
+</html>
