@@ -1,4 +1,4 @@
-// Hyper identity shell — 100% @worldofunreal/id-sdk underneath.
+// Hyper identity shell — 100% @worldofunreal/id underneath.
 // This file is Electron plumbing only (main-process proxy, secure session
 // store, desktop OAuth). All API logic lives in the npm package.
 import {
@@ -14,7 +14,7 @@ import {
   type LinkedIdentity,
   type UserProfile,
   type CrossGameStats,
-} from '@worldofunreal/id-sdk';
+} from '@worldofunreal/id';
 
 export {
   ID_SERVER_URL,
