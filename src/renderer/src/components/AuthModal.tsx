@@ -130,7 +130,6 @@ export default function AuthModal({ onClose, dismissable = true }: { onClose: ()
         <div className="space-y-2">
           <button onClick={async () => { try { await wou.loginWithSolana(); onClose() } catch (e: any) { setErr(e.message) } }} className="btn-bnet-ghost w-full py-2.5 rounded-sm text-[13px] font-semibold">Phantom</button>
           <button onClick={async () => { try { await wou.loginWithEthereum(); onClose() } catch (e: any) { setErr(e.message) } }} className="btn-bnet-ghost w-full py-2.5 rounded-sm text-[13px] font-semibold">MetaMask</button>
-          <button onClick={async () => { try { await wou.loginWithInternetIdentity(); onClose() } catch (e: any) { setErr(e.message) } }} className="btn-bnet-ghost w-full py-2.5 rounded-sm text-[13px] font-semibold">Internet Identity</button>
         </div>
       </div>
     </div>
